@@ -130,7 +130,9 @@ float jmass_2, jpt_2, jeta_2, jphi_2;
 
       TLorentzVector pDaughters1, pDaughters2;
       //     std::vector<TLorentzVector> daus = mela.calculate4Momentum(m_sv, m1, m2, acos(hs), acos(h1), acos(h2), phi1, phi);
-      pDaughters1.SetPtEtaPhiM(jpt_1, jeta_1, jphi_1, 0);
+      pDaughters1.SetPtEtaPhiM(pt_1, eta_1, phi_1, m_1);
+      pDaughters1.SetPtEtaPhiM(pt_2, eta_2, phi_2, m_2);
+
       SimpleParticleCollection_t daughters_ZZ;
       daughters_ZZ.push_back(SimpleParticle_t(13, pDaughters1));
       daughters_ZZ.push_back(SimpleParticle_t(15, pDaughters2));

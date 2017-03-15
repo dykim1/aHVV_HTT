@@ -105,7 +105,8 @@ float jmass_2, jpt_2, jeta_2, jphi_2;
   newtree->Branch("ME", &ME);
 
 
-  mela.setCandidateDecayMode(TVar::CandidateDecay_ff);
+  //  mela.setCandidateDecayMode(TVar::CandidateDecay_ff);
+  mela.setCandidateDecayMode(TVar::CandidateDecay_Stable);
 
  
   Long64_t nentries = tree->GetEntries();
@@ -134,8 +135,9 @@ float jmass_2, jpt_2, jeta_2, jphi_2;
       pDaughters1.SetPtEtaPhiM(pt_2, eta_2, phi_2, m_2);
 
       SimpleParticleCollection_t daughters_ZZ;
-      daughters_ZZ.push_back(SimpleParticle_t(13, pDaughters1));
-      daughters_ZZ.push_back(SimpleParticle_t(15, pDaughters2));
+      daughters_ZZ.push_back(SimpleParticle_t(25, higgs));
+      // daughters_ZZ.push_back(SimpleParticle_t(13, pDaughters1));
+      // daughters_ZZ.push_back(SimpleParticle_t(15, pDaughters2));
       mela.setInputEvent(&daughters_ZZ, &associated, (SimpleParticleCollection_t*)0, false);
 
       mela.setProcess(TVar::HSMHiggs, TVar::JHUGen, TVar::JJVBF);

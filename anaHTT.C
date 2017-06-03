@@ -37,8 +37,7 @@ void anaHTT(TString InFile, TString OutFile)
 //  TFile *finput = new TFile("all1234tmpOut2.root");
   TTree *tree = (TTree*) finput->Get("mutau_tree");
   
-  TFile* foutput = new TFile(OutFile, "recreate");
-  float ME_sm, ME_bsm, KD_sm, KD_bsm;
+  float ME_sm, ME_bsm, ME_bsm_mlt, KD_sm, KD_bsm, KD_bsm_mlt, ME_int, KD_int;
   
   Float_t         m_sv;
   Float_t         pt_sv;
@@ -96,12 +95,26 @@ void anaHTT(TString InFile, TString OutFile)
   tree->SetBranchAddress("phi_2", &phi_2, &b_phi_2);
   tree->SetBranchAddress("eta_2", &eta_2, &b_eta_2);
   tree->SetBranchAddress("m_2", &m_2, &b_m_2);
-  
+
+/*  tree->SetBranchStatus("*",0);
+  tree->SetBranchStatus("m_sv",1);
+  tree->SetBranchStatus("pt_sv",1);
+  tree->SetBranchStatus("eta_sv",1);
+  tree->SetBranchStatus("phi_sv",1);
+*/
+  TFile* foutput = new TFile(OutFile, "recreate");
+//  TTree *newtree = tree->CloneTree();
+//  newtree->SetName("TestTree"); 
   
   TTree* newtree = new TTree("TestTree", "");
-  newtree->Branch("ME_sm", &ME_sm);
-  newtree->Branch("ME_bsm", &ME_bsm);
-  newtree->Branch("KD_bsm", &KD_bsm);
+  newtree = tree->CloneTree(0);
+//  newtree->Branch("ME_sm", &ME_sm);
+//  newtree->Branch("ME_bsm", &ME_bsm);
+//  newtree->Branch("KD_bsm", &KD_bsm);
+//  newtree->Branch("ME_bsm_mlt", &ME_bsm_mlt);
+  newtree->Branch("KD_bsm_mlt", &KD_bsm_mlt);
+//  newtree->Branch("ME_int", &ME_int);
+  newtree->Branch("KD_int", &KD_int);
 
 
   //  mela.setCandidateDecayMode(TVar::CandidateDecay_ff);
@@ -146,17 +159,30 @@ void anaHTT(TString InFile, TString OutFile)
       //get ME bsm
       mela.setProcess(TVar::H0minus, TVar::JHUGen, TVar::JJVBF);
       mela.computeProdP(ME_bsm, false);
-
+      ME_bsm_mlt = ME_bsm*pow(0.297979, 2);
       //compute D_BSM (eq.5 of HIG-17-011)
       KD_bsm = ME_sm / (ME_sm + ME_bsm);
+      KD_bsm_mlt = ME_sm / (ME_sm + ME_bsm_mlt);
+
+        
+      mela.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::JJVBF);
+      mela.selfDHzzcoupl[0][gHIGGS_VV_4][0]=1;
+      mela.selfDHzzcoupl[0][gHIGGS_VV_1][0]=1;
+      mela.computeProdP(ME_int, false);
+
+      //define D_CP
+      KD_int = (0.297979*(ME_int-(ME_sm + ME_bsm)))/(ME_sm + (pow(0.297979, 2)*ME_bsm));
       
+ 
       newtree->Fill();
       recorded++;
       mela.resetInputEvent();
       // if (Cut(ientry) < 0) continue;
     }
   }
+//  foutput->Write();
   foutput->WriteTObject(newtree);
+//  delete tree;
   delete newtree;
   foutput->Close();
   finput->Close();
